@@ -33,10 +33,8 @@ namespace Automata_details {
 class Automata {
 
     struct SymbolWrapper {
-        bool is_empty;
-        char symbol;
-
-        explicit SymbolWrapper(char symbol = char(), bool is_empty = false): is_empty(is_empty), symbol(symbol) { };
+        char symbol = char();
+        bool is_empty = false;
 
     };
 
@@ -48,7 +46,7 @@ class Automata {
 
 
     struct Node {
-        std::map<SymbolWrapper, std::set<size_t>, CompWrap> edges; // set so I could remove links with ease and not add same edges
+        std::map<SymbolWrapper, std::set<size_t>, CompWrap> edges;
         bool is_final;
         std::map<SymbolWrapper, std::set<size_t>, CompWrap> parents;
 
@@ -59,7 +57,7 @@ class Automata {
     void dfs(std::set<size_t>& used, size_t cur) {
         if (used.count(cur)) return;
         used.insert(cur);
-        for (size_t empty: elements[cur].edges[SymbolWrapper(' ', true)]) {
+        for (size_t empty: elements[cur].edges[SymbolWrapper{' ', true}]) {
             dfs(used, empty);
         }
     }
@@ -68,7 +66,7 @@ class Automata {
         if (used.count(cur)) return;
         used.insert(cur);
         for (auto c: alphabet) {
-            for (size_t empty: elements[cur].edges[SymbolWrapper(c)]) {
+            for (size_t empty: elements[cur].edges[SymbolWrapper{c}]) {
                 dfs(used, empty);
             }
         }
@@ -87,12 +85,12 @@ class Automata {
         for (auto& el: another.elements) {
             elements[el.first + shift].is_final = el.second.is_final;
             for (auto& symb: el.second.edges) {
-                for (auto &nd: symb.second) {
+                for (auto& nd: symb.second) {
                     elements[el.first + shift].edges[symb.first].insert(nd + shift);
                 }
             }
             for (auto& symb: el.second.parents) {
-                for (auto &nd: symb.second) {
+                for (auto& nd: symb.second) {
                     elements[el.first + shift].parents[symb.first].insert(nd + shift);
                 }
             }
@@ -197,11 +195,11 @@ public:
     }
 
     void add_edge(size_t from_state, size_t to_state, char symbol) { // check if symbol is in alphabet
-        add_edge(from_state, to_state, SymbolWrapper(symbol));
+        add_edge(from_state, to_state, SymbolWrapper{symbol});
     }
 
     void add_empty_edge(size_t from_state, size_t to_state) {
-        add_edge(from_state, to_state, SymbolWrapper(' ', true));
+        add_edge(from_state, to_state, SymbolWrapper{' ', true});
     }
 
     [[nodiscard]] size_t get_starting_point() const {
@@ -217,13 +215,13 @@ public:
     }
 
     void remove_edge(size_t from_state, size_t to_state, char symbol) {
-        elements[from_state].edges[SymbolWrapper(symbol)].erase(to_state);
-        elements[to_state].parents[SymbolWrapper(symbol)].erase(from_state);
+        elements[from_state].edges[SymbolWrapper{symbol}].erase(to_state);
+        elements[to_state].parents[SymbolWrapper{symbol}].erase(from_state);
     }
 
     void remove_empty_edge(size_t from_state, size_t to_state) {
-        elements[from_state].edges[SymbolWrapper(' ', true)].erase(to_state);
-        elements[to_state].parents[SymbolWrapper(' ', true)].erase(from_state);
+        elements[from_state].edges[SymbolWrapper{' ', true}].erase(to_state);
+        elements[to_state].parents[SymbolWrapper{' ', true}].erase(from_state);
     }
 
     void remove_vert(size_t vert_name) { // check if vert_name is not the starting point
@@ -233,19 +231,19 @@ public:
         }
 
         for (auto smb: alphabet) {
-            for (auto child: elements[vert_name].edges[SymbolWrapper(smb)]) {
+            for (auto child: elements[vert_name].edges[SymbolWrapper{smb}]) {
                 remove_edge(vert_name, child, smb);
             }
-            for (auto parent: elements[vert_name].parents[SymbolWrapper(smb)]) {
+            for (auto parent: elements[vert_name].parents[SymbolWrapper{smb}]) {
                 remove_edge(vert_name, parent, smb);
             }
         }
 
-        for (auto child: elements[vert_name].edges[SymbolWrapper(' ', true)]) {
+        for (auto child: elements[vert_name].edges[SymbolWrapper{' ', true}]) {
             remove_empty_edge(vert_name, child);
         }
 
-        for (auto parent: elements[vert_name].parents[SymbolWrapper(' ', true)]) {
+        for (auto parent: elements[vert_name].parents[SymbolWrapper{' ', true}]) {
             remove_empty_edge(vert_name, parent);
         }
 
@@ -266,7 +264,7 @@ public:
             cur = to_check.front();
             to_check.pop();
 
-            for (auto to: elements[cur.first].edges[SymbolWrapper(' ', true)]) {
+            for (auto to: elements[cur.first].edges[SymbolWrapper{' ', true}]) {
                 if (visited_when[to].count(cur.second)) continue;
                 visited_when[to].insert(cur.second);
                 to_check.push({to, cur.second});
@@ -277,7 +275,7 @@ public:
                 else continue;
             }
 
-            for (auto to: elements[cur.first].edges[SymbolWrapper(word[cur.second])]) {
+            for (auto to: elements[cur.first].edges[SymbolWrapper{word[cur.second]}]) {
                 to_check.push({to, cur.second + 1});
                 visited_when[to].insert(cur.second + 1);
             }
@@ -309,7 +307,7 @@ public:
             dfs(used, el.first);
             for (auto empty: used) {
                 for (auto word: alphabet) {
-                    for (auto to: elements[empty].edges[SymbolWrapper(word)]) {
+                    for (auto to: elements[empty].edges[SymbolWrapper{word}]) {
                         add_edge(el.first, to, word);
                     }
                 }
@@ -318,7 +316,7 @@ public:
         }
 
         for (auto el: elements) { // intentional copy
-            for (size_t empty: el.second.edges[SymbolWrapper(' ', true)]) {
+            for (size_t empty: el.second.edges[SymbolWrapper{' ', true}]) {
                 remove_empty_edge(el.first, empty);
             }
         }
@@ -351,7 +349,7 @@ public:
                 new_automata.make_final(set_to_state[cur]);
             for (auto word: alphabet) {
                 for (auto el: cur) {
-                    for (auto to: elements[el].edges[SymbolWrapper(word)]) {
+                    for (auto to: elements[el].edges[SymbolWrapper{word}]) {
                         can_go.insert(to);
                     }
                 }
@@ -373,7 +371,7 @@ public:
         size_t cur_index = 0;
         size_t cur_state = starting_point;
         while (cur_index < s.length()) {
-            cur_state = *elements[cur_state].edges[SymbolWrapper(s[cur_index])].begin();
+            cur_state = *elements[cur_state].edges[SymbolWrapper{s[cur_index]}].begin();
             ++cur_index;
         }
         std::set<size_t> visited;
@@ -384,9 +382,3 @@ public:
     }
 
 };
-
-
-bool solve(Automata a, char x, int k) {
-    std::string new_str(k, x);
-    return a.is_prefix(new_str);
-}

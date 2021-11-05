@@ -1,6 +1,7 @@
 #include "Automata.h"
 #include <gtest/gtest.h>
 
+bool solve(Automata, char, int);
 
 void out(Automata& b) {
     auto s = b.get_edges();

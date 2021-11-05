@@ -23,9 +23,9 @@ FetchContent_Declare(
 set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(googletest)
 
-add_executable(${PROJECT_TEST_NAME} Automata.h main_tests.cpp )
+add_executable(${PROJECT_TEST_NAME} Automata.h main_tests.cpp algo.cpp)
 
-add_executable(${PROJECT_NAME} Automata.h main.cpp)
+add_executable(${PROJECT_NAME} Automata.h main.cpp algo.cpp)
 
 target_link_libraries(${PROJECT_TEST_NAME} gtest_main)
 
